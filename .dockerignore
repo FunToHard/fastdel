@@ -1,0 +1,33 @@
+# Exclude development and build artifacts
+target/
+
+# Exclude Git and version control
+.git/
+.gitignore
+
+# Exclude documentation that's not needed in container
+README.md
+DEVELOPMENT.md
+
+# Exclude demo scripts (they're for running the container)
+run-demo.sh
+run-demo.bat
+docker-compose.yml
+
+# Exclude any temporary or test directories
+test_dir/
+demo_delete/
+*.tmp
+*.temp
+
+# Exclude IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Exclude OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini

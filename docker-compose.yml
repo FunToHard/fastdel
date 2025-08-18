@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  # Basic demo - shows standard functionality
+  fastdel-demo:
+    build: .
+    image: fastdel:demo
+    container_name: fastdel-demo
+    profiles:
+      - demo
+    volumes:
+      - demo-data:/demo
+    command: >
+      /bin/bash -c "
+      echo '================================================';
+      echo 'FastDel Basic Demo';
+      echo '================================================';
+      echo;
+      echo 'Analyzing demo directory structure...';
+      echo 'Total files:' $$(find /demo -type f | wc -l);
+      echo 'Total directories:' $$(find /demo -type d | wc -l);
+      echo 'Directory size:' $$(du -sh /demo | cut -f1);
+      echo;
+      echo 'Running FastDel with verbose output...';
+      echo;
+      time fastdel -yv /demo;
+      echo;
+      echo 'Demo completed successfully!';
+      "
+
+  # Performance demo - creates a larger structure for benchmarking
+  fastdel-performance:
+    build: .
+    image: fastdel:demo
+    container_name: fastdel-performance
+    profiles:
+      - performance
+    volumes:
+      - perf-data:/perf-demo
+    command: >
+      /bin/bash -c "
+      echo '================================================';
+      echo 'FastDel Performance Demo';
+      echo '================================================';
+      echo;
+      echo 'Creating large directory structure...';
+      mkdir -p /perf-demo;
+      cd /perf-demo;
+      
+      # Create a structure with many nested directories and files
+      for pkg in {1..10}; do
+        mkdir -p package$$pkg/node_modules;
+        echo '{\"name\": \"package$$pkg\"}' > package$$pkg/package.json;
+        
+        for dep in {1..20}; do
+          mkdir -p package$$pkg/node_modules/dep$$dep/lib/src/utils;
+          echo '{\"name\": \"dep$$dep\"}' > package$$pkg/node_modules/dep$$dep/package.json;
+          
+          for file in {1..50}; do
+            echo '// File $$file in dep$$dep' > package$$pkg/node_modules/dep$$dep/lib/file$$file.js;
+            echo '/* Src file $$file */' > package$$pkg/node_modules/dep$$dep/lib/src/src$$file.js;
+            echo '// Utility $$file' > package$$pkg/node_modules/dep$$dep/lib/src/utils/util$$file.js;
+          done;
+        done;
+      done;
+      
+      echo 'Performance test structure created!';
+      echo 'Total files:' $$(find /perf-demo -type f | wc -l);
+      echo 'Total directories:' $$(find /perf-demo -type d | wc -l);
+      echo 'Directory size:' $$(du -sh /perf-demo | cut -f1);
+      echo;
+      echo 'Running FastDel performance test...';
+      echo;
+      time fastdel -yv /perf-demo;
+      echo;
+      echo 'Performance test completed!';
+      "
+
+  # Interactive demo - allows user to explore
+  fastdel-interactive:
+    build: .
+    image: fastdel:demo
+    container_name: fastdel-interactive
+    profiles:
+      - interactive
+    stdin_open: true
+    tty: true
+    volumes:
+      - interactive-data:/workspace
+    working_dir: /workspace
+    command: >
+      /bin/bash -c "
+      echo '================================================';
+      echo 'FastDel Interactive Demo';
+      echo '================================================';
+      echo;
+      echo 'Welcome to the interactive FastDel demo!';
+      echo;
+      echo 'Available commands:';
+      echo '  fastdel --help           - Show help';
+      echo '  fastdel --version        - Show version';
+      echo '  fastdel -v <directory>   - Delete with verbose output';
+      echo '  fastdel -y <directory>   - Delete without confirmation';
+      echo;
+      echo 'Sample directories have been created in /workspace';
+      echo 'You can also create your own test directories.';
+      echo;
+      echo 'Type \"exit\" to leave the demo.';
+      echo;
+      
+      # Create some sample directories
+      mkdir -p sample1/deep/nested/structure;
+      mkdir -p sample2/node_modules/package/lib;
+      echo 'Sample content' > sample1/file.txt;
+      echo 'More content' > sample1/deep/nested/structure/deep-file.txt;
+      echo '{\"test\": true}' > sample2/node_modules/package/package.json;
+      echo 'console.log(\"test\");' > sample2/node_modules/package/lib/index.js;
+      
+      echo 'Sample directories created: sample1/ and sample2/';
+      echo;
+      
+      /bin/bash;
+      "
+
+volumes:
+  demo-data:
+  perf-data:
+  interactive-data:
