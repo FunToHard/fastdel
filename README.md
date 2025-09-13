@@ -300,7 +300,7 @@ Contributions are welcome! Please:
 ### Development Setup
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/FunToHard/fastdel.git
 cd fastdel
 cargo build
 cargo test
